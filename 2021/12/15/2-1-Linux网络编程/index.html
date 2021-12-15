@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.8.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="计算机网络的基础概念、TCP&#x2F;IP 网络编程-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2.1.Linux 网络编程">
+<meta property="og:url" content="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Gyatso Ichiro">
+<meta property="og:description" content="计算机网络的基础概念、TCP&#x2F;IP 网络编程-">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/2.1.1.%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/2.1.2.TCP%E5%8D%8F%E8%AE%AE%E7%BC%96%E7%A8%8B%E6%A1%86%E6%9E%B6.jpg">
+<meta property="og:image" content="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/2.1.3.UDP%E5%8D%8F%E8%AE%AE%E7%BC%96%E7%A8%8B%E6%A1%86%E6%9E%B6.jpg">
+<meta property="article:published_time" content="2021-12-15T07:34:04.000Z">
+<meta property="article:modified_time" content="2021-12-15T15:03:07.502Z">
+<meta property="article:author" content="嘉措壹郎">
+<meta property="article:tag" content="未完待续">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/2.1.1.%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png">
+
+
+<link rel="canonical" href="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/","path":"2021/12/15/2-1-Linux网络编程/","title":"2.1.Linux 网络编程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>2.1.Linux 网络编程 | Gyatso Ichiro</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Gyatso Ichiro" type="application/atom+xml">
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Gyatso Ichiro</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">嘉措壹郎</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2-1-Linux-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">2.1 Linux 网络编程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-1-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">2.1.1 计算机网络的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-2-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%9A%84%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="nav-number">1.2.</span> <span class="nav-text">2.1.2 计算机网络的性能指标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-3-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">2.1.3 计算机网络体系结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-4-Linux-TCP-IP-%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80"><span class="nav-number">1.4.</span> <span class="nav-text">2.1.4 Linux TCP&#x2F;IP 网络编程基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-5-%E5%8D%8F%E8%AE%AE%E7%B0%87"><span class="nav-number">1.5.</span> <span class="nav-text">2.1.5 协议簇</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-6-socket-%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.6.</span> <span class="nav-text">2.1.6 socket() 系统调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-7-TCP-Server-%E5%92%8C-TCP-Client-%E7%BC%96%E7%A8%8B"><span class="nav-number">1.7.</span> <span class="nav-text">2.1.7 TCP Server 和 TCP Client 编程</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="嘉措壹郎"
+      src="/images/avatar_1.gif">
+  <p class="site-author-name" itemprop="name">嘉措壹郎</p>
+  <div class="site-description" itemprop="description">个人技术博客</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/15/2-1-Linux%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar_1.gif">
+      <meta itemprop="name" content="嘉措壹郎">
+      <meta itemprop="description" content="个人技术博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gyatso Ichiro">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2.1.Linux 网络编程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-12-15 15:34:04 / 修改时间：23:03:07" itemprop="dateCreated datePublished" datetime="2021-12-15T15:34:04+08:00">2021-12-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">网络技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">计算机网络的基础概念、TCP/IP 网络编程-</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="2-1-Linux-网络编程"><a href="#2-1-Linux-网络编程" class="headerlink" title="2.1 Linux 网络编程"></a>2.1 Linux 网络编程</h1><hr>
+<blockquote>
+<p><strong>重点内容</strong></p>
+<ul>
+<li><strong>计算机网络的定义</strong></li>
+<li><strong>计算机网络的性能指标</strong></li>
+<li><strong>计算机网络体系结构</strong></li>
+<li><strong>Linux TCP/IP 网络编程基础</strong></li>
+<li><strong>协议簇</strong></li>
+<li><strong>socket() 系统调用</strong></li>
+<li><strong>TCP Server 和 TCP Client 编程</strong></li>
+<li><strong>UDP Server 和 UDP Client 编程</strong></li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="2-1-1-计算机网络的定义"><a href="#2-1-1-计算机网络的定义" class="headerlink" title="2.1.1 计算机网络的定义"></a>2.1.1 计算机网络的定义</h2><ul>
+<li><p><strong>一些相互连接的、自治的计算机的集合</strong></p>
+<ul>
+<li><p><strong>广域网 WAN(Wide Area Network)：广域网是英特网的核心部分，其任务是通过长距离运送主机所发送的数据，有时也称为远程网(Long haul network)</strong></p>
+</li>
+<li><p><strong>城域网 MAN(Metropolitan Area Network)：城域网的作用范围一般是一个城市，目前很多城域网采用的是以太网技术</strong></p>
+</li>
+<li><p><strong>局域网 LAN(Local Area Network)：局域网一般用微型计算机或工作站通过高速通信线路相连，例如：校园网、企业网等</strong></p>
+</li>
+<li><p><strong>公用网(public network)：公用网指电信公司出资建造的大型网络，公用网也称为公众网</strong></p>
+</li>
+<li><p><strong>专用网(private network)：这是某个部门为本单位的特殊业务工作的需要而建造的网络，不向本单位以外的人服务</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-1-2-计算机网络的性能指标"><a href="#2-1-2-计算机网络的性能指标" class="headerlink" title="2.1.2 计算机网络的性能指标"></a>2.1.2 计算机网络的性能指标</h2><ul>
+<li><p><strong>速率：网络技术中的速率指的是连接在计算机网络上的主机在数字信道上传送数据的速率，也称为数据率(data rate)或比特率(bit rate)，单位：比特每秒(bit/s，bps)</strong></p>
+</li>
+<li><p><strong>带宽(bandwidth)：带宽用来表示网络的通信线路所能传送数据的能力，网络带宽指在单位时间内从网络中的某一点到另一点所能通过的最高数据率</strong></p>
+</li>
+<li><p><strong>吞吐量(throughput)：吞吐量表示在单位时间内通过某个网络信道或接口的数据量，吞吐量受网络带宽或网络额定速率的限制，有时吞吐量可以用每秒传送的字节数或帧数来表示</strong></p>
+</li>
+<li><p><strong>时延(delay 或 latency)：是指数据(一个报文或分组，甚至比特)从网络(或链路)的一端传送到另一端所需的时间，网络时延由以下几个部分组成：</strong></p>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li><strong>发送时延(transmission delay)：发送时延是主机或路由器发送数据帧所需要的时间，也就是从发送数据帧的第一个比特算起，到该帧最后一个比特发送完毕所需的时间，发送时延也叫传输时延，发送时延的计算公式：</strong></li>
+</ul>
+</blockquote>
+<p><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -2.172ex" xmlns="http://www.w3.org/2000/svg" width="25.225ex" height="5.475ex" role="img" focusable="false" viewBox="0 -1460 11149.6 2420"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">发</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">送</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(3877.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mfrac" transform="translate(4933.6,0)"><g data-mml-node="mrow" transform="translate(254.5,710)"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">数</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">据</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">帧</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">长</text></g><g data-mml-node="mi" transform="translate(3600,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">度</text></g><g data-mml-node="mo" transform="translate(4500,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(4889,0)"><path data-c="1D44F" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path></g><g data-mml-node="mo" transform="translate(5318,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g><g data-mml-node="mrow" transform="translate(220,-710)"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">信</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">道</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">带</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">宽</text></g><g data-mml-node="mo" transform="translate(3600,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(3989,0)"><path data-c="1D44F" d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"></path></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(4418,0)"><g data-mml-node="mo"><path data-c="2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path></g></g><g data-mml-node="mi" transform="translate(4918,0)"><path data-c="1D460" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path></g><g data-mml-node="mo" transform="translate(5387,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g><rect width="5976" height="60" x="120" y="220"></rect></g></g></g></svg></mjx-container></p>
+<blockquote>
+<ul>
+<li><strong>传播时延(propagation dlay)：传播时延是电磁波在信道中传播一定的距离需要花费的时间，计算公式：</strong></li>
+</ul>
+</blockquote>
+<p><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -2.172ex" xmlns="http://www.w3.org/2000/svg" width="42.531ex" height="5.475ex" role="img" focusable="false" viewBox="0 -1460 18798.6 2420"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">传</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">播</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(3877.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mfrac" transform="translate(4933.6,0)"><g data-mml-node="mrow" transform="translate(4304.5,710)"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">信</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">道</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">长</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">度</text></g><g data-mml-node="mo" transform="translate(3600,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(3989,0)"><path data-c="1D45A" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"></path></g><g data-mml-node="mo" transform="translate(4867,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g><g data-mml-node="mrow" transform="translate(220,-710)"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">电</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">磁</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">波</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">在</text></g><g data-mml-node="mi" transform="translate(3600,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">信</text></g><g data-mml-node="mi" transform="translate(4500,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">道</text></g><g data-mml-node="mi" transform="translate(5400,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">上</text></g><g data-mml-node="mi" transform="translate(6300,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">传</text></g><g data-mml-node="mi" transform="translate(7200,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">播</text></g><g data-mml-node="mi" transform="translate(8100,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">的</text></g><g data-mml-node="mi" transform="translate(9000,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">速</text></g><g data-mml-node="mi" transform="translate(9900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">率</text></g><g data-mml-node="mo" transform="translate(10800,0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mi" transform="translate(11189,0)"><path data-c="1D45A" d="M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z"></path></g><g data-mml-node="TeXAtom" data-mjx-texclass="ORD" transform="translate(12067,0)"><g data-mml-node="mo"><path data-c="2F" d="M423 750Q432 750 438 744T444 730Q444 725 271 248T92 -240Q85 -250 75 -250Q68 -250 62 -245T56 -231Q56 -221 230 257T407 740Q411 750 423 750Z"></path></g></g><g data-mml-node="mi" transform="translate(12567,0)"><path data-c="1D460" d="M131 289Q131 321 147 354T203 415T300 442Q362 442 390 415T419 355Q419 323 402 308T364 292Q351 292 340 300T328 326Q328 342 337 354T354 372T367 378Q368 378 368 379Q368 382 361 388T336 399T297 405Q249 405 227 379T204 326Q204 301 223 291T278 274T330 259Q396 230 396 163Q396 135 385 107T352 51T289 7T195 -10Q118 -10 86 19T53 87Q53 126 74 143T118 160Q133 160 146 151T160 120Q160 94 142 76T111 58Q109 57 108 57T107 55Q108 52 115 47T146 34T201 27Q237 27 263 38T301 66T318 97T323 122Q323 150 302 164T254 181T195 196T148 231Q131 256 131 289Z"></path></g><g data-mml-node="mo" transform="translate(13036,0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g><rect width="13625" height="60" x="120" y="220"></rect></g></g></g></svg></mjx-container></p>
+<blockquote>
+<ul>
+<li><strong>处理时延：主机或路由在收到分组时要花费一定的时间进行处理</strong></li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li><strong>排队时延：分组在进入路由器后需要在输入队列排队等待处理，在路由器确定了转发接口后还需要在输出队列中排队等待转发，就产生了排队时延，排队时延的长短往往取决于网络当时的通信量</strong></li>
+</ul>
+</blockquote>
+<blockquote>
+<p> <em><strong>总时延等于发送时延、传播时延、处理时延和排队时延的总和</strong></em></p>
+</blockquote>
+<p><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -0.452ex" xmlns="http://www.w3.org/2000/svg" width="50.002ex" height="2.149ex" role="img" focusable="false" viewBox="0 -750 22100.9 950"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">总</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(2977.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mi" transform="translate(4033.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">发</text></g><g data-mml-node="mi" transform="translate(4933.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">送</text></g><g data-mml-node="mi" transform="translate(5833.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(6733.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(7855.8,0)"><path data-c="2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path></g><g data-mml-node="mi" transform="translate(8856,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">传</text></g><g data-mml-node="mi" transform="translate(9756,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">播</text></g><g data-mml-node="mi" transform="translate(10656,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(11556,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(12678.2,0)"><path data-c="2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path></g><g data-mml-node="mi" transform="translate(13678.4,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">处</text></g><g data-mml-node="mi" transform="translate(14578.4,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">理</text></g><g data-mml-node="mi" transform="translate(15478.4,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(16378.4,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(17500.7,0)"><path data-c="2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path></g><g data-mml-node="mi" transform="translate(18500.9,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">排</text></g><g data-mml-node="mi" transform="translate(19400.9,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">队</text></g><g data-mml-node="mi" transform="translate(20300.9,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(21200.9,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g></g></g></svg></mjx-container></p>
+<blockquote>
+<ul>
+<li><strong>时延带宽积：传播时延和带宽相乘，就得到了传播时延带宽积</strong></li>
+</ul>
+</blockquote>
+<p><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -0.452ex" xmlns="http://www.w3.org/2000/svg" width="27.552ex" height="2.149ex" role="img" focusable="false" viewBox="0 -750 12178 950"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="scale(1,-1)"><g data-mml-node="math"><g data-mml-node="mi"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(900,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mi" transform="translate(1800,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">带</text></g><g data-mml-node="mi" transform="translate(2700,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">宽</text></g><g data-mml-node="mi" transform="translate(3600,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">积</text></g><g data-mml-node="mo" transform="translate(4777.8,0)"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g><g data-mml-node="mi" transform="translate(5833.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">传</text></g><g data-mml-node="mi" transform="translate(6733.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">播</text></g><g data-mml-node="mi" transform="translate(7633.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">时</text></g><g data-mml-node="mi" transform="translate(8533.6,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">延</text></g><g data-mml-node="mo" transform="translate(9655.8,0)"><path data-c="2217" d="M229 286Q216 420 216 436Q216 454 240 464Q241 464 245 464T251 465Q263 464 273 456T283 436Q283 419 277 356T270 286L328 328Q384 369 389 372T399 375Q412 375 423 365T435 338Q435 325 425 315Q420 312 357 282T289 250L355 219L425 184Q434 175 434 161Q434 146 425 136T401 125Q393 125 383 131T328 171L270 213Q283 79 283 63Q283 53 276 44T250 35Q231 35 224 44T216 63Q216 80 222 143T229 213L171 171Q115 130 110 127Q106 124 100 124Q87 124 76 134T64 161Q64 166 64 169T67 175T72 181T81 188T94 195T113 204T138 215T170 230T210 250L74 315Q65 324 65 338Q65 353 74 363T98 374Q106 374 116 368T171 328L229 286Z"></path></g><g data-mml-node="mi" transform="translate(10378,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">带</text></g><g data-mml-node="mi" transform="translate(11278,0)"><text data-variant="italic" transform="scale(1,-1)" font-size="884px" font-family="serif" font-style="italic">宽</text></g></g></g></svg></mjx-container></p>
+<blockquote>
+<ul>
+<li><strong>往返时间RTT：往返时间 RTT(Round-Trip Time) 表示从发送方发送数据开始，到发送方收到来自接收方的确认(接收方收到数据后立即发送确认)，总共经历的时间，往返时间包括各中间结点的处理时延、排队时延以及转发数据时的发送时延。往返时间 RTT 与所发送的分组长度有关，数据块分组越长所需的往返时间越多</strong></li>
+</ul>
+</blockquote>
+<ul>
+<li><em><strong>计算机网络的非性能特征：费用、质量、标准化、可靠性、可扩展性和可升级性、易于管理和维护</strong></em></li>
+</ul>
+<hr>
+<h2 id="2-1-3-计算机网络体系结构"><a href="#2-1-3-计算机网络体系结构" class="headerlink" title="2.1.3 计算机网络体系结构"></a>2.1.3 计算机网络体系结构</h2><p><strong>(1). OSI 参考模型</strong></p>
+<ul>
+<li><p><strong>OSI 参考模型是国际互联网标准化组织(International Standards Organizations ISO) 所定义的，它是为了使各层上的协议国际标准化而发展起来的。OSI 参考模型全称是开放系统互连参考模型(Open System Interconnection Reference Model)。这一参考模型共分为七层：物理层(Physical)、数据链路层(Data Link)、网络层(Network)、传输层(Transport)、会话层(Session)、表示层(Presentation)和应用层(Application)</strong></p>
+</li>
+<li><p><strong>OSI 参考模型把对等层次之间传送的数据单位称为该层次的协议数据单元PDU(Protocol Data Unit)</strong></p>
+</li>
+<li><p><strong>OSI 模型共有七层</strong></p>
+<ul>
+<li><strong>物理层(physical layer)：在物理层上所传数据的单位是比特，物理层的任务是透明地传送比特流</strong></li>
+<li><strong>数据链路层(data link layer)：简称链路层，数据链路层负责实现通信信道的无差错传输，将数据封装成帧，差错控制、流量控制和链路控制</strong></li>
+<li><strong>网络层(network layer)：负责将数据正确迅速的从源点主机传送到目的点主机，其功能主要有寻址以及与相关的流量控制和拥塞控制等，TCP/IP 体系中，网络层使用 IP 协议</strong></li>
+<li><strong>传输层(transport layer)：为上层处理过程掩盖下层结构的细节，保证把会话层的信息有效传送到另一方的会话层传输层有复用和分用的功能，传输层主要有两种协议：传输控制协议 TCP(Transmission Control Protocol)——面向连接的，用户数据报协议UDP(User Datagram Protocol)——面向连接的</strong></li>
+<li><strong>会话层(Session layer)：它提供服务请求者和提供者之间的通讯，用于实现两端主机之间的会话管理，传输同步和活动管理等</strong></li>
+<li><strong>表示层(Presentation layer)：它的主要功能是实现信息转换，包括压缩、加密、代码转换以及上述操作的逆操作等</strong></li>
+<li><strong>应用层(application layer)：应用层是体系结构中的最高层，直接为用户的应用进程提供服务</strong></li>
+</ul>
+</li>
+<li><p><strong>TCP/IP 参考模型</strong></p>
+<ul>
+<li><p><strong>TCP/IP 参考模型是首先由 ARPANET 所使用的网络体系结构。这个体系结构在它的两个主要协议出现以后被称为 TCP/IP 参考模型(TCP/IP Reference Model)。这一网络协议共分为四层：数据链路层、网络层、传输层和应用层</strong></p>
+</li>
+<li><p><strong>OSI 参考模型和 TCP/IP 参考模型都采用了层次结构的概念，都能够提供面向连接和无连接两种通信服务机制。TCP/IP 与 OSI 在分层模块上稍有区别。OSI 模型是在协议开发前设计的，具有通用性，TCP/IP是先有协议集然后建立模型，不适用于非TCP/IP网络；OSI参考模型的抽象能力高，适合与描述各种网络，而TCP/IP是先有了协议，才制定TCP/IP模型的；OSI 参考模型的概念划分清晰，但过于复杂，而 TCP/IP 参考模型在服务、接口和协议的区别上不清楚，功能描述和实现细节混在一起</strong><br><img src="2.1.1.%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84.png" alt="计算机网络体系结构" title="嘉措一郎(Gyatso Ichiro)"></p>
+</li>
+</ul>
+</li>
+<li><p><strong>网络协议的三要素</strong></p>
+<ul>
+<li><p><strong>语法：即数据与控制信息的结构或格式</strong></p>
+</li>
+<li><p><strong>语义：即需要发出何种控制信息，完成何种动作以及做出何种响应</strong></p>
+</li>
+<li><p><strong>同步：即事件实现顺序的详细说明</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-1-4-Linux-TCP-IP-网络编程基础"><a href="#2-1-4-Linux-TCP-IP-网络编程基础" class="headerlink" title="2.1.4 Linux TCP/IP 网络编程基础"></a>2.1.4 Linux TCP/IP 网络编程基础</h2><p><strong>Linux 网络基础</strong></p>
+<ul>
+<li><p><strong>本地回环：固定 IP 地址，127.0.0.1</strong></p>
+</li>
+<li><p><strong>查看 IP 地址：ifconfig</strong></p>
+<ul>
+<li><p><strong>Hwaddr：网卡地址(物理地址、硬件地址)</strong></p>
+</li>
+<li><p><strong>inet addr：IP 地址</strong></p>
+</li>
+<li><p><strong>Bcast：广播地址</strong></p>
+</li>
+<li><p><strong>Mask：子网掩码</strong></p>
+</li>
+<li><p><strong>MTU：Max Transmission Unit 最大传输单元，即数据帧最大长度</strong></p>
+</li>
+<li><p><strong>Metric：路由长度</strong></p>
+</li>
+<li><p><strong>TX packets：发送的数据包总数、错误数、遗失数以及溢出数</strong></p>
+</li>
+<li><p><strong>RX packets：接收的数据包总数、错误数、遗失数以及溢出数</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>设置 IP 地址相关信息</strong></p>
+<ul>
+<li><p><strong>语法：ifconfig 接口 IP地址 [broadcast 广播地址 netmask 子网掩码]</strong></p>
+</li>
+<li><p><strong>例：</strong></p>
+<ul>
+<li><strong>ifconfig eth0 192.168.0.3</strong></li>
+<li><strong>ifconfig eth0 192.168.0.5 broadcast</strong></li>
+<li><strong>192.168.0.255 netmask 255.255.255.0</strong></li>
+<li><strong>注意：ifconfig 命令设置的 IP 地址不能永久保存，重启设备之后会丢失</strong></li>
+</ul>
+</li>
+<li><p><strong>netconfig 命令设置网络参数</strong></p>
+</li>
+<li><p><strong>注意：netconfig 设置的网络配置信息可以永久保存到配置文件中，但不会立即生效，刷新方法：/etc/init.d/network restart</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>网络配置相关文件</strong></p>
+<ul>
+<li><p><strong>/etc/sysconfig/network</strong></p>
+<ul>
+<li><strong>HOSTNAME：主机名设置</strong></li>
+<li><strong>GATEWAY：默认网关设置</strong></li>
+</ul>
+</li>
+<li><p><strong>/etc/sysconfig/network-scripts/ifcfg-eth0</strong></p>
+<ul>
+<li><strong>DEVICE：设备名称</strong></li>
+<li><strong>BOOTPROTO：IP 地址设置方式(动态或静态)</strong></li>
+<li><strong>BROADCAST：广播地址</strong></li>
+<li><strong>HWADDR：硬件地址</strong></li>
+<li><strong>IPADDR：IP 地址设置</strong></li>
+<li><strong>NETMASK：子网掩码设置</strong></li>
+<li><strong>NETWORK：网络地址</strong></li>
+<li><strong>ONBOOT：启动时是否激活</strong></li>
+</ul>
+</li>
+<li><p><strong>/etc/resolv.conf：DNS 服务器地址配置</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>TCP 和 UDP</strong></p>
+<ul>
+<li><p><strong>TCP/IP 中有两个具有代表性的传输层协议，TCP 和 UDP</strong></p>
+</li>
+<li><p><strong>TCP(Transimision Control Protocal)：传输控制协议，是面向连接的、可靠的协议</strong></p>
+</li>
+<li><p><strong>UDP(User Datagram Protocal)：用户数据报协议，是不具有可靠性的数据报协议</strong></p>
+</li>
+<li><p><strong>IP(Internet Protocol)：网际协议是网络层协议</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-1-5-协议簇"><a href="#2-1-5-协议簇" class="headerlink" title="2.1.5 协议簇"></a>2.1.5 协议簇</h2><ul>
+<li><p><strong>TCP - 传输控制协议</strong></p>
+<ul>
+<li><strong>TCP 用于从应用程序到网络的数据传输控制</strong></li>
+<li><strong>TCP 负责在数据传送之前将它们分割为 IP 包，然后在它们到达的时候将它们重组</strong></li>
+</ul>
+</li>
+<li><p><strong>IP - 网际协议(Internet Protocol)</strong></p>
+<ul>
+<li><strong>IP 负责计算机之间的通信</strong></li>
+<li><strong>IP 负责在因特网上发送和接收数据包</strong></li>
+</ul>
+</li>
+<li><p><strong>HTTP - 超文本传输协议(Hyper Text Transfer Protocol)</strong></p>
+<ul>
+<li><strong>HTTP 负责 web 服务器与 web 浏览器之间的通信</strong></li>
+<li><strong>HTTP 用于从 web 客户端(浏览器)向 web 服务器发送请求，并从 web 服务器向 web 客户端返回内容(网页)</strong></li>
+</ul>
+</li>
+<li><p><strong>HTTPS - 安全的 HTTP(HTTP Secure)</strong></p>
+<ul>
+<li><strong>HTTPS 负责在 web 服务器和 web 浏览器之间的安全通信</strong></li>
+<li><strong>作为有代表性的应用，HTTPS 会用于处理信用卡交易和其他的敏感数据</strong></li>
+</ul>
+</li>
+<li><p><strong>SSL - 安全套接字层(Secure Sockets Layer)</strong></p>
+<ul>
+<li><strong>SSL 协议用于为安全数据传输加密数据</strong></li>
+</ul>
+</li>
+<li><p><strong>SMTP - 简易邮件传输协议(Simple Mail Transfer Protocol)</strong></p>
+<ul>
+<li><strong>SMTP 用于电子邮件的传输</strong></li>
+</ul>
+</li>
+<li><p><strong>MIME - 多用途因特网邮件扩展(Multi-purpose Internet Mail Extensions)</strong></p>
+<ul>
+<li><strong>MIME 协议使 SMTP 有能力通过 TCP/IP 网络传输多媒体文件，包括声音、视频和二进制数据</strong></li>
+</ul>
+</li>
+<li><p><strong>IMAP - 因特网消息访问协议(Internet Message Access Protocol)</strong></p>
+<ul>
+<li><strong>IMAP 用于存储和取回电子邮件</strong></li>
+</ul>
+</li>
+<li><p><strong>POP - 邮局协议(Post Office Protocol)</strong></p>
+<ul>
+<li><strong>POP 用于从电子邮件服务器向个人电脑下载电子邮件</strong></li>
+</ul>
+</li>
+<li><p><strong>FTP - 文件传输协议(File Transfer Protocol)</strong></p>
+<ul>
+<li><strong>FTP 负责计算机之间的文件传输</strong></li>
+</ul>
+</li>
+<li><p><strong>NTP - 网络时间协议(Network Time Protocol)</strong></p>
+<ul>
+<li><strong>NTP 用于在计算机之间同步时间（钟）</strong></li>
+</ul>
+</li>
+<li><p><strong>DHCP - 动态主机配置协议(Dynamic Host Configuration Protocol)</strong></p>
+<ul>
+<li><strong>DHCP 用于向网络中的计算机分配动态 IP 地址</strong></li>
+</ul>
+</li>
+<li><p><strong>SNMP - 简单网络管理协议(Simple Network Management Protocol)</strong></p>
+<ul>
+<li><strong>SNMP 用于计算机网络的管理</strong></li>
+</ul>
+</li>
+<li><p><strong>LDAP - 轻量级的目录访问协议(Lightweight Directory Access Protocol)</strong></p>
+<ul>
+<li><strong>LDAP 用于从因特网搜集关于用户和电子邮件地址的信息</strong></li>
+</ul>
+</li>
+<li><p><strong>ICMP - 因特网消息控制协议(Internet Control Message Protocol)</strong></p>
+<ul>
+<li><strong>ICMP 负责网络中的错误处理</strong></li>
+</ul>
+</li>
+<li><p><strong>ARP - 地址解析协议(Address Resolution Protocol)</strong></p>
+<ul>
+<li><strong>ARP - 用于通过 IP 来查找基于 IP 地址的计算机网卡的硬件地址</strong></li>
+</ul>
+</li>
+<li><p><strong>RARP - 反向地址转换协议(Reverse Address Resolution Protocol)</strong></p>
+<ul>
+<li><strong>RARP 用于通过 IP 查找基于硬件地址的计算机网卡的 IP 地址</strong></li>
+</ul>
+</li>
+<li><p><strong>BOOTP - 自举协议(Boot Protocol)</strong></p>
+<ul>
+<li><strong>BOOTP 用于从网络启动计算机</strong></li>
+</ul>
+</li>
+<li><p><strong>PPTP - 点对点隧道协议(Point to Point Tunneling Protocol)</strong></p>
+<ul>
+<li><strong>PPTP 用于私人网络之间的连接(隧道)</strong></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-1-6-socket-系统调用"><a href="#2-1-6-socket-系统调用" class="headerlink" title="2.1.6 socket() 系统调用"></a>2.1.6 socket() 系统调用</h2><p><strong>socket() 套接字是一套网络编程接口函数集的总称，在 Linux 中网络编程是通过 socket() 接口来进行的，socket 是网络 I/O，套接字也是文件描述符，是Linux跨进程间通信(IPC，Inter Process Communication)方式的一种</strong></p>
+<p><strong>Socket根据通信协议的不同还可以分为3种：流式套接字(SOCK_STREAM)，数据报套接字(SOCK_DGRAM)及原始套接字。</strong></p>
+<p><strong><code>流式套接字(SOCK_STREAM)：最常见的套接字，使用TCP协议，提供可靠的、面向连接的通信流。保证数据传输是正确的，并且是顺序的。应用于Telnet远程连接、WWW服务等。</code></strong></p>
+<p><strong><code>数据报套接字(SOCK_DGRAM)：使用UDP协议，提供无连接的服务，数据通过相互独立的报文进行传输，是无序的，并且不保证可靠性。使用UDP的应用程序要有自己的对数据进行确认的协议。</code></strong></p>
+<p><strong><code>原始套接字：允许对低层协议如IP或ICMP直接访问，主要用于新的网络协议实现的测试等。原始套接字主要用于一些协议的开发，可以进行比较底层的操作。它功能强大，但是没有上面介绍的两种套接字使用方便，一般的程序也涉及不到原始套接字。</code></strong></p>
+<p><strong>(1) socket 创建套接字</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<blockquote>
+<p><strong>socket() 系统调用创建一个新的套接字，即创建通信端点，返回一个套接字文件描述符 sockfd</strong></p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       socket - create an endpoint <span class="keyword">for</span> communication</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>          <span class="comment">/* See NOTES */</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>domain：指定网域， AF_INET IPv4， AF_INET6 IPv6</strong></p>
+</li>
+<li><p><strong>type：选择传输协议族， SOCK_STREAM TCP， SOCK_DGRAM UDP</strong></p>
+</li>
+<li><p><strong>protocol：基本废弃，直接赋0</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回网络套接字描述符 sockfd，失败返回 -1</strong></p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span></span></span><br><span class="line"><span class="class">{</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">short</span> sin_family;  地址族</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">short</span> sin_port;    端口号</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">in_addr</span> <span class="title">sin_addr</span>;</span>    IP地址</span><br><span class="line">	<span class="keyword">char</span> sin_zero[<span class="number">8</span>];           未使用</span><br><span class="line">};</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>(2) bind() 向 sockfd 绑定端口号和 IP 地址</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       bind - bind a name to a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>          <span class="comment">/* See NOTES */</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">int</span> <span class="title">bind</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> struct sockaddr *addr,</span></span></span><br><span class="line"><span class="params"><span class="function">                <span class="keyword">socklen_t</span> addrlen)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 socket() 函数的返回值</strong></p>
+</li>
+<li><p><strong>addr：封装IP地址和端口号</strong></p>
+</li>
+<li><p><strong>addrlen：struct sockaddr 结构体的大小，sizeof(struct sockaddr)</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回 0，失败返回 -1</strong></p>
+</li>
+</ul>
+<p><strong>(3) listen() 监听套接字上的连接，设置允许的最大连接数</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       listen - listen <span class="keyword">for</span> connections on a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>          <span class="comment">/* See NOTES */</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">int</span> <span class="title">listen</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">int</span> backlog)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 socket() 函数的返回值</strong></p>
+</li>
+<li><p><strong>backlog：指定同时能处理的最大连接要求(即队列的最大长度)，通常为10或者5，最大为128</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回 0，失败返回 -1</strong></p>
+</li>
+</ul>
+<p><strong>(4) accept() 等待来自客户端的连接请求</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       accept, accept4 - accept a connection on a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>          <span class="comment">/* See NOTES */</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">int</span> <span class="title">accept</span><span class="params">(<span class="keyword">int</span> sockfd, struct sockaddr *addr, <span class="keyword">socklen_t</span> *addrlen)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 socket() 函数的返回值</strong></p>
+</li>
+<li><p><strong>addr：用于接收客户端的 IP 地址和端口号</strong></p>
+</li>
+<li><p><strong>addrlen：struct sockaddr <code>*</code>addr 的大小</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：返回新的套接字描述符(通信套接字)，专门用于与建立客户端的通信，失败返回 -1</strong></p>
+</li>
+</ul>
+<p><strong>send() 在套接字上发送消息</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       send, sendto, sendmsg - send a message on a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">send</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> len, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">sendto</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> len, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="params"><span class="function">                      <span class="keyword">const</span> struct sockaddr *dest_addr, <span class="keyword">socklen_t</span> addrlen)</span></span>;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">sendmsg</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> struct msghdr *msg, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 accept() 函数的返回值</strong></p>
+</li>
+<li><p><strong>buf：要发送的数据缓冲区</strong></p>
+</li>
+<li><p><strong>len：buf的数据长度</strong></p>
+</li>
+<li><p><strong>flags：一般赋为 0，阻塞</strong></p>
+</li>
+<li><p><strong>dest_addr：服务器的 IP 和端口号</strong></p>
+</li>
+<li><p><strong>addrlen：dest_addr 结构体指针的长度</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回数据长度，失败 -1</strong></p>
+</li>
+</ul>
+<p><strong>recv() 从套接字接收消息</strong></p>
+<ul>
+<li><strong>函数原型</strong></li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       recv, recvfrom, recvmsg - receive a message from a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">recv</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> len, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">recvfrom</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> len, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="params"><span class="function">                        struct sockaddr *src_addr, <span class="keyword">socklen_t</span> *addrlen)</span></span>;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">ssize_t</span> <span class="title">recvmsg</span><span class="params">(<span class="keyword">int</span> sockfd, struct msghdr *msg, <span class="keyword">int</span> flags)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 accept() 函数的返回值</strong></p>
+</li>
+<li><p><strong>buf：存放接收数据的缓冲区</strong></p>
+</li>
+<li><p><strong>len：数据缓冲区大小</strong></p>
+</li>
+<li><p><strong>flags：一般赋为 0，阻塞</strong></p>
+</li>
+<li><p><strong>src_addr：源机地址和端口号</strong></p>
+</li>
+<li><p><strong>addrlen：地址长度</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回接收到数据的长度，失败 -1</strong></p>
+</li>
+</ul>
+<p><strong>connect() 客户端用来请求连接远程服务器</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">NAME</span><br><span class="line">       connect - initiate a connection on a socket</span><br><span class="line"></span><br><span class="line">SYNOPSIS</span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span>          <span class="comment">/* See NOTES */</span></span></span><br><span class="line">       <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">int</span> <span class="title">connect</span><span class="params">(<span class="keyword">int</span> sockfd, <span class="keyword">const</span> struct sockaddr *addr,</span></span></span><br><span class="line"><span class="params"><span class="function">                   <span class="keyword">socklen_t</span> addrlen)</span></span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>函数参数</strong></p>
+<ul>
+<li><p><strong>sockfd：为 socket() 函数的返回值</strong></p>
+</li>
+<li><p><strong>addr：为结构体变量指针，存放远程服务器的 IP 与端口号信息</strong></p>
+</li>
+<li><p><strong>addrlen：addr 结构体变量的长度</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>返回值：成功返回 0，失败 -1</strong></p>
+</li>
+</ul>
+<hr>
+<h2 id="2-1-7-TCP-Server-和-TCP-Client-编程"><a href="#2-1-7-TCP-Server-和-TCP-Client-编程" class="headerlink" title="2.1.7 TCP Server 和 TCP Client 编程"></a>2.1.7 TCP Server 和 TCP Client 编程</h2><ul>
+<li><p><strong>TCP Server</strong></p>
+<ul>
+<li><strong>TCP协议编程框架</strong><br><img src="2.1.2.TCP%E5%8D%8F%E8%AE%AE%E7%BC%96%E7%A8%8B%E6%A1%86%E6%9E%B6.jpg" alt="TCP协议编程框架" title="嘉措一郎(Gyatso Ichiro)"></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/*  单客户端连接  */</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">tcp_server</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">	<span class="keyword">char</span> recvmsg[TCP_SERVER_BUFF_SIZE] = { <span class="string">'\0'</span> };  <span class="comment">/*  服务器端接收数据缓冲区  */</span></span><br><span class="line">	<span class="keyword">char</span> sendmsg[TCP_SERVER_BUFF_SIZE] = { <span class="string">'\0'</span> };  <span class="comment">/*  服务器端发送数据缓冲区  */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/*  创建套接字 sockfd  */</span></span><br><span class="line">	<span class="keyword">int</span> sockfd = <span class="built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (<span class="number">-1</span> == sockfd)</span><br><span class="line">	{</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Create a socket file descriptor error\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	}</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Create a socket file descriptor succeed\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*  填充数据结构体  struct sockaddr_in  */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">seraddr</span>;</span></span><br><span class="line">	<span class="built_in">memset</span>(&amp;seraddr, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(seraddr));</span><br><span class="line">	seraddr.sin_family = AF_INET;                   <span class="comment">/*  地址族：IPv4  */</span></span><br><span class="line">	seraddr.sin_port = <span class="built_in">htons</span>(TCP_SERVER_PORT);      <span class="comment">/*  端口号  */</span></span><br><span class="line">	seraddr.sin_addr.s_addr = <span class="built_in">htonl</span>(TCP_SERVER_IP); <span class="comment">/*  IP地址  */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/*  绑定端口号和IP地址到套接字 sockfd  */</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="number">-1</span> == <span class="built_in">bind</span>(sockfd, (struct sockaddr*)&amp;seraddr, <span class="built_in"><span class="keyword">sizeof</span></span>(seraddr)))</span><br><span class="line">	{</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Bind a server IP addr  and port to sockfd error\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-2</span>;</span><br><span class="line">	}</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Bind a server IP addr  and port to sockfd succeed\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*  开始监听，设置最大链接数  */</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="number">-1</span> == <span class="built_in">listen</span>(sockfd, TCP_SERVER_BACKLOG))</span><br><span class="line">	{</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Listen for connections on a sockfd error\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-3</span>;</span><br><span class="line">	}</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Listen for connections on a sockfd succeed\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Waiting for client's link request\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*  等待来自客户端的连接请求  */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">cliaddr</span>;</span></span><br><span class="line">	<span class="built_in">memset</span>(&amp;cliaddr, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(cliaddr));</span><br><span class="line">	<span class="keyword">socklen_t</span> cliaddrlen = <span class="built_in"><span class="keyword">sizeof</span></span>(cliaddr);</span><br><span class="line">	<span class="keyword">int</span> clifd = <span class="built_in">accept</span>(sockfd, (struct sockaddr*)&amp;cliaddr, &amp;cliaddrlen);</span><br><span class="line">	<span class="keyword">if</span> (<span class="number">-1</span> == clifd)</span><br><span class="line">	{</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Accept a connection on a clifd error\n"</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-4</span>;</span><br><span class="line">	}</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Accept a connection on a clifd succeed\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">	{</span><br><span class="line">		<span class="built_in">bzero</span>(recvmsg, TCP_SERVER_BUFF_SIZE);</span><br><span class="line">		<span class="keyword">ssize_t</span> reclen = <span class="built_in">recv</span>(clifd, recvmsg, TCP_SERVER_BUFF_SIZE, <span class="number">0</span>);</span><br><span class="line">		<span class="keyword">if</span> (reclen &gt; <span class="number">0</span>)</span><br><span class="line">		{</span><br><span class="line">			recvmsg[reclen] = <span class="string">'\0'</span>;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"[TCP Server]: From %s client message: (%s)\n"</span>, <span class="built_in">inet_ntoa</span>(cliaddr.sin_addr), recvmsg);</span><br><span class="line"></span><br><span class="line">			<span class="built_in">strcpy</span>(sendmsg, recvmsg);</span><br><span class="line">			<span class="built_in">send</span>(clifd, sendmsg, <span class="built_in">strlen</span>(sendmsg) + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"[TCP Server]: To client send message: (%s)\n"</span>, <span class="built_in">inet_ntoa</span>(cliaddr.sin_addr));</span><br><span class="line">			<span class="keyword">if</span> (<span class="number">0</span> == <span class="built_in">strncmp</span>(<span class="string">"exit"</span>, recvmsg, <span class="number">4</span>))</span><br><span class="line">			{</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			}</span><br><span class="line">		}</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		{</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		}</span><br><span class="line">	}</span><br><span class="line">	<span class="built_in">close</span>(clifd);</span><br><span class="line">	<span class="built_in">close</span>(sockfd);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"[TCP Server]: Close\n"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>UDP Server</strong></p>
+<ul>
+<li><strong>UDP协议编程框架</strong><br><img src="2.1.3.UDP%E5%8D%8F%E8%AE%AE%E7%BC%96%E7%A8%8B%E6%A1%86%E6%9E%B6.jpg" alt="UDP协议编程框架" title="嘉措一郎(Gyatso Ichiro)"></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%AA%E5%AE%8C%E5%BE%85%E7%BB%AD/" rel="tag"># 未完待续</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/15/2.2.IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/" rel="prev" title="高性能网络设计 —— I/O 多路复用">
+                  <i class="fa fa-chevron-left"></i> 高性能网络设计 —— I/O 多路复用
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">嘉措壹郎</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">青海</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">互助.</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
